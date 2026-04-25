@@ -3,10 +3,10 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
     <title>佛光沙龍 - 劇本閱讀器</title>
     <style>
-        /* 強制移除所有斜體，並鎖定手機縮放改用按鈕控制 */
+        /* [全面禁絕斜體] */
         * { 
             font-style: normal !important; 
             box-sizing: border-box; 
@@ -15,79 +15,47 @@
         
         body { 
             font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; 
-            background: #fdfdfd; 
-            margin: 0; 
-            padding: 0; 
-            color: #333; 
+            background: #fdfdfd; margin: 0; padding: 0; color: #333; 
         }
         
-        /* 頂端固定控制列 */
+        /* [頂端固定控制列] */
         .control-bar {
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            background: #1a73e8; 
-            color: white;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            padding: 10px 15px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100; background: #1a73e8; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         .control-bar .title { font-weight: bold; font-size: 1.1em; }
         .font-btns { display: flex; gap: 8px; }
         .font-btn {
-            background: white; 
-            color: #1a73e8; 
-            border: none; 
-            border-radius: 6px;
-            padding: 8px 16px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-size: 1.2em;
+            background: white; color: #1a73e8; border: none; border-radius: 6px;
+            padding: 8px 16px; font-weight: bold; cursor: pointer; font-size: 1.2em;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .font-btn:active { background: #e8f0fe; }
+
+        /* [LINE 內開啟提醒標籤] */
+        #line-hint {
+            display: none; background: #fff3cd; color: #856404;
+            padding: 10px; text-align: center; font-size: 0.9em; border-bottom: 1px solid #ffeeba;
+        }
 
         .container { 
-            max-width: 800px; 
-            margin: auto; 
-            background: white; 
-            padding: 15px; 
-            min-height: 100vh; 
+            max-width: 800px; margin: auto; background: white; 
+            padding: 15px; min-height: 100vh; padding-bottom: 100px;
         }
         
-        /* 場景標題樣式 */
+        /* [場景標題] */
         .scene-title { 
-            background: #e8f0fe; 
-            color: #1967d2; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin: 20px 0; 
-            font-weight: bold; 
-            font-size: 1.4em; 
-            border-left: 8px solid #1a73e8; 
-            line-height: 1.4; 
+            background: #e8f0fe; color: #1967d2; padding: 15px; border-radius: 8px; 
+            margin: 20px 0; font-weight: bold; font-size: 1.4em; border-left: 8px solid #1a73e8; 
+            line-height: 1.4;
         }
 
-        /* 台詞區塊樣式 */
-        .line-box { 
-            border-bottom: 1px solid #f0f0f0; 
-            padding: 20px 0; 
-            display: flex; 
-            flex-direction: column; 
-        }
+        /* [台詞區塊] */
+        .line-box { border-bottom: 1px solid #f0f0f0; padding: 25px 0; display: flex; flex-direction: column; }
         
-        .char-tag { 
-            font-weight: bold; 
-            width: fit-content; 
-            padding: 4px 14px; 
-            border-radius: 20px; 
-            margin-bottom: 12px; 
-            border: 1px solid rgba(0,0,0,0.05);
-        }
+        .char-tag { font-weight: bold; width: fit-content; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
         
-        /* 角色顏色區分 */
+        /* [角色色塊] */
         .tag-陳老闆 { background: #d2e3fc; color: #174ea6; }
         .tag-徒弟甲 { background: #e6ffed; color: #155724; }
         .tag-徒弟乙 { background: #fef7e0; color: #b06000; }
@@ -95,40 +63,23 @@
         .tag-旁白 { background: #f1f3f4; color: #5f6368; }
         .tag-default { background: #eee; color: #666; }
 
-        /* 動作指令樣式：不使用斜體 */
+        /* [動作指令區] */
         .action-box { 
-            color: #555; 
-            background: #f7f7f7; 
-            padding: 15px; 
-            border-radius: 6px; 
-            border-left: 5px solid #ccc; 
-            margin-bottom: 12px; 
-            line-height: 1.5; 
+            color: #555; background: #f7f7f7; padding: 15px; border-radius: 6px; 
+            border-left: 5px solid #ccc; margin-bottom: 12px; line-height: 1.5; 
         }
         .action-prefix { font-weight: bold; color: #1a73e8; margin-right: 5px; }
 
-        /* 台詞文字樣式 */
-        .speech-text { 
-            line-height: 1.7; 
-            color: #202124; 
-            word-wrap: break-word; 
-            margin-bottom: 15px; 
-        }
+        /* [主要對白文字] */
+        .speech-text { line-height: 1.7; color: #202124; word-wrap: break-word; margin-bottom: 15px; font-weight: 500; }
 
-        /* 建議修改按鈕 */
+        /* [回報按鈕 - 手機優化] */
         .report-btn { 
-            align-self: flex-end; 
-            font-size: 15px; 
-            color: #1a73e8; 
-            border: 2px solid #1a73e8; 
-            background: white; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            padding: 10px 18px; 
-            font-weight: bold; 
-            -webkit-tap-highlight-color: transparent;
+            align-self: flex-end; font-size: 16px; color: #1a73e8; border: 2.5px solid #1a73e8; 
+            background: white; border-radius: 8px; cursor: pointer; padding: 12px 22px; 
+            font-weight: bold; -webkit-tap-highlight-color: transparent; margin-top: 5px;
         }
-        .report-btn:active { background: #e8f0fe; }
+        .report-btn:active { background: #e8f0fe; transform: scale(0.95); }
 
         @media (max-width: 600px) {
             .container { padding: 10px; }
@@ -137,12 +88,14 @@
 </head>
 <body>
     <div class="control-bar">
-        <div class="title">佛光沙龍 劇本</div>
+        <div class="title">佛光沙龍 - 劇本</div>
         <div class="font-btns">
             <button class="font-btn" onclick="changeFontSize(-2)">A -</button>
             <button class="font-btn" onclick="changeFontSize(2)">A +</button>
         </div>
     </div>
+
+    <div id="line-hint">提醒：若在 LINE 內無法跳轉，請點擊右上角「...」選擇「在瀏覽器中開啟」。</div>
 
     <div class="container" id="script-content">
 <div class="scene-title">【場景 1：小理髮店】 1.1 等待客人上門</div>
@@ -707,49 +660,45 @@
     </div>
 
     <script>
-        // 1. 字體大小控制邏輯 (實現 Reflow 文字自動換行)
+        // [1. 偵測 LINE 環境]
+        if (navigator.userAgent.indexOf('Line') > -1) {
+            document.getElementById('line-hint').style.display = 'block';
+        }
+
+        // [2. 字體縮放邏輯 - 實現 Reflow 自動重排]
         let currentSize = 22; 
-        
         function changeFontSize(delta) {
             currentSize += delta;
             if (currentSize < 16) currentSize = 16; 
-            if (currentSize > 48) currentSize = 48; 
+            if (currentSize > 60) currentSize = 60; 
             
-            // 調整台詞
-            const speechTexts = document.querySelectorAll('.speech-text');
-            speechTexts.forEach(el => el.style.fontSize = currentSize + 'px');
-            
-            // 調整動作
-            const actionBoxes = document.querySelectorAll('.action-box');
-            actionBoxes.forEach(el => el.style.fontSize = (currentSize * 0.85) + 'px');
-            
-            // 調整標籤
-            const charTags = document.querySelectorAll('.char-tag');
-            charTags.forEach(el => el.style.fontSize = (currentSize * 0.7) + 'px');
+            document.querySelectorAll('.speech-text').forEach(el => el.style.fontSize = currentSize + 'px');
+            document.querySelectorAll('.action-box').forEach(el => el.style.fontSize = (currentSize * 0.85) + 'px');
+            document.querySelectorAll('.char-tag').forEach(el => el.style.fontSize = (currentSize * 0.7) + 'px');
         }
-
+        // 初始化
         window.onload = () => changeFontSize(0);
 
-        // 2. Google 表單建議回報邏輯
+        // [3. 建議修改回報邏輯 - 解決 LINE 跳轉問題]
         function sendReport(character, originalLine) {
             const suggestion = prompt(`您對【${character}】的台詞有什麼建議？\n\n原內容："${originalLine}"`);
             
             if (suggestion) {
-                // 您提供的 Google 表單編號
+                // 您提供的 Google 表單連結與 ID
                 const formID = "1FAIpQLScRusS4PvZ2xCfF3ckxh1FIbhTaC5Cb_cvDZjUNg541AqJwVw";
                 const entry_char = "entry.2070395466"; 
                 const entry_line = "entry.788511661";  
                 const entry_sug  = "entry.1033546112"; 
 
-                // 使用 viewform 確保自動預填，點擊「提交」即可生效
                 const finalURL = `https://docs.google.com/forms/d/e/${formID}/viewform?usp=pp_url&` + 
                                  `${entry_char}=${encodeURIComponent(character)}&` + 
                                  `${entry_line}=${encodeURIComponent(originalLine)}&` + 
                                  `${entry_sug}=${encodeURIComponent(suggestion)}`;
 
-                const confirmSubmit = confirm("即將開啟 Google 表單進行回報。\n請在表單頁面最下方點擊「提交」按鈕。");
-                if (confirmSubmit) {
-                    window.open(finalURL, '_blank');
+                // 在 LINE 內環境，直接跳轉當前頁面是最穩定的做法
+                const confirmMove = confirm("即將前往 Google 表單填寫建議。\n\n完成後，請按手機的「返回鍵」即可回到劇本。");
+                if (confirmMove) {
+                    window.location.href = finalURL;
                 }
             }
         }
