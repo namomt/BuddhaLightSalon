@@ -3,25 +3,36 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>劇本閱讀器 - 佛光沙龍</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>佛光沙龍 - 劇本閱讀器</title>
     <style>
-        /* 強制移除所有斜體，支援縮放 */
-        * { font-style: normal !important; box-sizing: border-box; -webkit-text-size-adjust: 100%; }
+        /* 強制移除所有斜體 */
+        * { font-style: normal !important; box-sizing: border-box; }
         
-        body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; background: #fdfdfd; padding: 10px; margin: 0; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 15px; border-radius: 8px; }
+        body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; background: #fdfdfd; margin: 0; padding: 0; color: #333; }
         
-        h1 { text-align: center; color: #1a73e8; font-size: 1.6em; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #666; font-size: 0.9em; margin-bottom: 20px; }
+        /* 固定在頂端的控制列 */
+        .control-bar {
+            position: sticky; top: 0; z-index: 100; background: #1a73e8; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .control-bar .title { font-weight: bold; font-size: 1.1em; }
+        .font-btns { display: flex; gap: 10px; }
+        .font-btn {
+            background: white; color: #1a73e8; border: none; border-radius: 4px;
+            padding: 5px 15px; font-weight: bold; cursor: pointer; font-size: 1.1em;
+        }
 
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; min-height: 100vh; }
+        
         /* 場景標題樣式 */
-        .scene-title { background: #e8f0fe; color: #1967d2; padding: 15px; border-radius: 8px; margin: 30px 0 15px 0; font-weight: bold; font-size: 1.4em; border-left: 8px solid #1a73e8; line-height: 1.4; }
+        .scene-title { background: #e8f0fe; color: #1967d2; padding: 15px; border-radius: 8px; margin: 20px 0; font-weight: bold; border-left: 8px solid #1a73e8; line-height: 1.4; }
 
         /* 台詞區塊樣式 */
-        .line-box { border-bottom: 1px solid #f0f0f0; padding: 20px 0; position: relative; display: flex; flex-direction: column; }
+        .line-box { border-bottom: 1px solid #f0f0f0; padding: 25px 0; display: flex; flex-direction: column; }
         
-        .char-tag { font-weight: bold; width: fit-content; padding: 4px 14px; border-radius: 20px; font-size: 0.95em; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05); }
+        .char-tag { font-weight: bold; width: fit-content; padding: 4px 14px; border-radius: 20px; font-size: 0.9em; margin-bottom: 12px; }
         
         /* 角色顏色區分 */
         .tag-陳老闆 { background: #d2e3fc; color: #174ea6; }
@@ -31,31 +42,29 @@
         .tag-旁白 { background: #f1f3f4; color: #5f6368; }
         .tag-default { background: #eee; color: #333; }
 
-        /* 動作指令樣式：純文字加色塊，無斜體 */
-        .action-box { color: #555; background: #f7f7f7; padding: 12px; border-radius: 6px; border-left: 5px solid #ccc; margin-bottom: 10px; font-size: 1.05em; line-height: 1.5; }
+        /* 動作指令與台詞：這裡的字體大小由 JS 控制 */
+        .action-box { color: #555; background: #f7f7f7; padding: 15px; border-radius: 6px; border-left: 5px solid #ccc; margin-bottom: 12px; line-height: 1.5; }
         .action-prefix { font-weight: bold; color: #1a73e8; margin-right: 5px; }
+        .speech-text { line-height: 1.7; color: #202124; word-wrap: break-word; margin-bottom: 15px; }
 
-        /* 台詞文字：加大字體適應手機 */
-        .speech-text { font-size: 1.3em; line-height: 1.7; color: #202124; word-wrap: break-word; margin-bottom: 10px; }
-
-        /* 建議修改按鈕：手機大按鈕設計 */
+        /* 建議修改按鈕 */
         .report-btn { 
-            align-self: flex-end; font-size: 15px; color: #1a73e8; border: 2px solid #1a73e8; 
-            background: white; border-radius: 8px; cursor: pointer; padding: 10px 18px; 
-            font-weight: bold; transition: 0.2s; -webkit-tap-highlight-color: transparent;
-        }
-        .report-btn:active { background: #e8f0fe; transform: scale(0.95); }
-
-        @media (max-width: 600px) {
-            .speech-text { font-size: 1.4em; } 
-            .container { padding: 5px; }
+            align-self: flex-end; font-size: 14px; color: #1a73e8; border: 1.5px solid #1a73e8; 
+            background: white; border-radius: 6px; cursor: pointer; padding: 8px 16px; 
+            font-weight: bold; -webkit-tap-highlight-color: transparent;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📜 佛光沙龍劇本閱讀器</h1>
-        <div class="subtitle">（可用兩指縮放，點擊「💡 建議」可自動紀錄回饋）</div>
+    <div class="control-bar">
+        <div class="title">佛光沙龍 劇本</div>
+        <div class="font-btns">
+            <button class="font-btn" onclick="changeFontSize(-2)">A -</button>
+            <button class="font-btn" onclick="changeFontSize(2)">A +</button>
+        </div>
+    </div>
+
+    <div class="container" id="script-content">
 <div class="scene-title">【場景 1：小理髮店】 1.1 等待客人上門</div>
         <div class="line-box">
             <div class="char-tag tag-旁白">旁白</div>
@@ -618,16 +627,39 @@
     </div>
 
     <script>
+        // 字體大小控制邏輯
+        let currentSize = 22; // 預設對話字體大小 (px)
+        
+        function changeFontSize(delta) {
+            currentSize += delta;
+            if (currentSize < 16) currentSize = 16; // 最小限制
+            if (currentSize > 48) currentSize = 48; // 最大限制
+            
+            // 調整台詞字體
+            const speechTexts = document.querySelectorAll('.speech-text');
+            speechTexts.forEach(el => el.style.fontSize = currentSize + 'px');
+            
+            // 調整動作框字體 (比台詞小一點點)
+            const actionBoxes = document.querySelectorAll('.action-box');
+            actionBoxes.forEach(el => el.style.fontSize = (currentSize * 0.8) + 'px');
+            
+            // 調整角色標籤字體
+            const charTags = document.querySelectorAll('.char-tag');
+            charTags.forEach(el => el.style.fontSize = (currentSize * 0.7) + 'px');
+        }
+
+        // 初始化字體大小
+        window.onload = () => changeFontSize(0);
+
+        // Google 表單建議修改邏輯
         function sendReport(character, originalLine) {
             const suggestion = prompt(`您對【${character}】的台詞有什麼建議？\n\n原內容："${originalLine}"`);
             
             if (suggestion) {
-                // --- Google 表單設定區 (已根據您的連結填寫) ---
                 const formID = "1FAIpQLScRusS4PvZ2xCfF3ckxh1FIbhTaC5Cb_cvDZjUNg541AqJwVw";
-                const entry_char = "entry.2070395466"; // 問題1: 角色
-                const entry_line = "entry.788511661";  // 問題2: 原台詞
-                const entry_sug  = "entry.1033546112"; // 問題3: 建議內容
-                // -------------------------------------------
+                const entry_char = "entry.2070395466"; 
+                const entry_line = "entry.788511661";  
+                const entry_sug  = "entry.1033546112"; 
 
                 const baseURL = `https://docs.google.com/forms/d/e/${formID}/formResponse`;
                 const finalURL = `${baseURL}?` + 
@@ -635,8 +667,7 @@
                                  `${entry_line}=${encodeURIComponent(originalLine)}&` + 
                                  `${entry_sug}=${encodeURIComponent(suggestion)}&submit=Submit`;
 
-                // 彈出確認視窗，點擊後會開啟新分頁提交
-                const confirmSubmit = confirm("確認要提交此修改建議嗎？\n(將自動填寫至 Google 表單)");
+                const confirmSubmit = confirm("確認要提交修改建議嗎？");
                 if (confirmSubmit) {
                     window.open(finalURL, '_blank');
                 }
