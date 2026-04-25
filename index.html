@@ -6,33 +6,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>佛光沙龍 - 劇本閱讀器</title>
     <style>
-        /* 強制移除所有斜體 */
-        * { font-style: normal !important; box-sizing: border-box; }
+        /* 強制移除所有斜體，並鎖定手機縮放改用按鈕控制 */
+        * { 
+            font-style: normal !important; 
+            box-sizing: border-box; 
+            -webkit-text-size-adjust: 100%; 
+        }
         
-        body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; background: #fdfdfd; margin: 0; padding: 0; color: #333; }
+        body { 
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; 
+            background: #fdfdfd; 
+            margin: 0; 
+            padding: 0; 
+            color: #333; 
+        }
         
-        /* 固定在頂端的控制列 */
+        /* 頂端固定控制列 */
         .control-bar {
-            position: sticky; top: 0; z-index: 100; background: #1a73e8; color: white;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            background: #1a73e8; 
+            color: white;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 10px 15px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         .control-bar .title { font-weight: bold; font-size: 1.1em; }
-        .font-btns { display: flex; gap: 10px; }
+        .font-btns { display: flex; gap: 8px; }
         .font-btn {
-            background: white; color: #1a73e8; border: none; border-radius: 4px;
-            padding: 5px 15px; font-weight: bold; cursor: pointer; font-size: 1.1em;
+            background: white; 
+            color: #1a73e8; 
+            border: none; 
+            border-radius: 6px;
+            padding: 8px 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 1.2em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .font-btn:active { background: #e8f0fe; }
 
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; min-height: 100vh; }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: white; 
+            padding: 15px; 
+            min-height: 100vh; 
+        }
         
         /* 場景標題樣式 */
-        .scene-title { background: #e8f0fe; color: #1967d2; padding: 15px; border-radius: 8px; margin: 20px 0; font-weight: bold; border-left: 8px solid #1a73e8; line-height: 1.4; }
+        .scene-title { 
+            background: #e8f0fe; 
+            color: #1967d2; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+            font-weight: bold; 
+            font-size: 1.4em; 
+            border-left: 8px solid #1a73e8; 
+            line-height: 1.4; 
+        }
 
         /* 台詞區塊樣式 */
-        .line-box { border-bottom: 1px solid #f0f0f0; padding: 25px 0; display: flex; flex-direction: column; }
+        .line-box { 
+            border-bottom: 1px solid #f0f0f0; 
+            padding: 20px 0; 
+            display: flex; 
+            flex-direction: column; 
+        }
         
-        .char-tag { font-weight: bold; width: fit-content; padding: 4px 14px; border-radius: 20px; font-size: 0.9em; margin-bottom: 12px; }
+        .char-tag { 
+            font-weight: bold; 
+            width: fit-content; 
+            padding: 4px 14px; 
+            border-radius: 20px; 
+            margin-bottom: 12px; 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
         
         /* 角色顏色區分 */
         .tag-陳老闆 { background: #d2e3fc; color: #174ea6; }
@@ -40,18 +93,45 @@
         .tag-徒弟乙 { background: #fef7e0; color: #b06000; }
         .tag-客人 { background: #feefec; color: #b71c1c; }
         .tag-旁白 { background: #f1f3f4; color: #5f6368; }
-        .tag-default { background: #eee; color: #333; }
+        .tag-default { background: #eee; color: #666; }
 
-        /* 動作指令與台詞：這裡的字體大小由 JS 控制 */
-        .action-box { color: #555; background: #f7f7f7; padding: 15px; border-radius: 6px; border-left: 5px solid #ccc; margin-bottom: 12px; line-height: 1.5; }
+        /* 動作指令樣式：不使用斜體 */
+        .action-box { 
+            color: #555; 
+            background: #f7f7f7; 
+            padding: 15px; 
+            border-radius: 6px; 
+            border-left: 5px solid #ccc; 
+            margin-bottom: 12px; 
+            line-height: 1.5; 
+        }
         .action-prefix { font-weight: bold; color: #1a73e8; margin-right: 5px; }
-        .speech-text { line-height: 1.7; color: #202124; word-wrap: break-word; margin-bottom: 15px; }
+
+        /* 台詞文字樣式 */
+        .speech-text { 
+            line-height: 1.7; 
+            color: #202124; 
+            word-wrap: break-word; 
+            margin-bottom: 15px; 
+        }
 
         /* 建議修改按鈕 */
         .report-btn { 
-            align-self: flex-end; font-size: 14px; color: #1a73e8; border: 1.5px solid #1a73e8; 
-            background: white; border-radius: 6px; cursor: pointer; padding: 8px 16px; 
-            font-weight: bold; -webkit-tap-highlight-color: transparent;
+            align-self: flex-end; 
+            font-size: 15px; 
+            color: #1a73e8; 
+            border: 2px solid #1a73e8; 
+            background: white; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            padding: 10px 18px; 
+            font-weight: bold; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .report-btn:active { background: #e8f0fe; }
+
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
         }
     </style>
 </head>
@@ -627,47 +707,47 @@
     </div>
 
     <script>
-        // 字體大小控制邏輯
-        let currentSize = 22; // 預設對話字體大小 (px)
+        // 1. 字體大小控制邏輯 (實現 Reflow 文字自動換行)
+        let currentSize = 22; 
         
         function changeFontSize(delta) {
             currentSize += delta;
-            if (currentSize < 16) currentSize = 16; // 最小限制
-            if (currentSize > 48) currentSize = 48; // 最大限制
+            if (currentSize < 16) currentSize = 16; 
+            if (currentSize > 48) currentSize = 48; 
             
-            // 調整台詞字體
+            // 調整台詞
             const speechTexts = document.querySelectorAll('.speech-text');
             speechTexts.forEach(el => el.style.fontSize = currentSize + 'px');
             
-            // 調整動作框字體 (比台詞小一點點)
+            // 調整動作
             const actionBoxes = document.querySelectorAll('.action-box');
-            actionBoxes.forEach(el => el.style.fontSize = (currentSize * 0.8) + 'px');
+            actionBoxes.forEach(el => el.style.fontSize = (currentSize * 0.85) + 'px');
             
-            // 調整角色標籤字體
+            // 調整標籤
             const charTags = document.querySelectorAll('.char-tag');
             charTags.forEach(el => el.style.fontSize = (currentSize * 0.7) + 'px');
         }
 
-        // 初始化字體大小
         window.onload = () => changeFontSize(0);
 
-        // Google 表單建議修改邏輯
+        // 2. Google 表單建議回報邏輯
         function sendReport(character, originalLine) {
             const suggestion = prompt(`您對【${character}】的台詞有什麼建議？\n\n原內容："${originalLine}"`);
             
             if (suggestion) {
+                // 您提供的 Google 表單編號
                 const formID = "1FAIpQLScRusS4PvZ2xCfF3ckxh1FIbhTaC5Cb_cvDZjUNg541AqJwVw";
                 const entry_char = "entry.2070395466"; 
                 const entry_line = "entry.788511661";  
                 const entry_sug  = "entry.1033546112"; 
 
-                const baseURL = `https://docs.google.com/forms/d/e/${formID}/formResponse`;
-                const finalURL = `${baseURL}?` + 
+                // 使用 viewform 確保自動預填，點擊「提交」即可生效
+                const finalURL = `https://docs.google.com/forms/d/e/${formID}/viewform?usp=pp_url&` + 
                                  `${entry_char}=${encodeURIComponent(character)}&` + 
                                  `${entry_line}=${encodeURIComponent(originalLine)}&` + 
-                                 `${entry_sug}=${encodeURIComponent(suggestion)}&submit=Submit`;
+                                 `${entry_sug}=${encodeURIComponent(suggestion)}`;
 
-                const confirmSubmit = confirm("確認要提交修改建議嗎？");
+                const confirmSubmit = confirm("即將開啟 Google 表單進行回報。\n請在表單頁面最下方點擊「提交」按鈕。");
                 if (confirmSubmit) {
                     window.open(finalURL, '_blank');
                 }
