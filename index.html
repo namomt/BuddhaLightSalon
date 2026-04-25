@@ -1,0 +1,647 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>劇本閱讀器 - 佛光沙龍</title>
+    <style>
+        /* 強制移除所有斜體，支援縮放 */
+        * { font-style: normal !important; box-sizing: border-box; -webkit-text-size-adjust: 100%; }
+        
+        body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; background: #fdfdfd; padding: 10px; margin: 0; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 15px; border-radius: 8px; }
+        
+        h1 { text-align: center; color: #1a73e8; font-size: 1.6em; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-size: 0.9em; margin-bottom: 20px; }
+
+        /* 場景標題樣式 */
+        .scene-title { background: #e8f0fe; color: #1967d2; padding: 15px; border-radius: 8px; margin: 30px 0 15px 0; font-weight: bold; font-size: 1.4em; border-left: 8px solid #1a73e8; line-height: 1.4; }
+
+        /* 台詞區塊樣式 */
+        .line-box { border-bottom: 1px solid #f0f0f0; padding: 20px 0; position: relative; display: flex; flex-direction: column; }
+        
+        .char-tag { font-weight: bold; width: fit-content; padding: 4px 14px; border-radius: 20px; font-size: 0.95em; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05); }
+        
+        /* 角色顏色區分 */
+        .tag-陳老闆 { background: #d2e3fc; color: #174ea6; }
+        .tag-徒弟甲 { background: #e6ffed; color: #155724; }
+        .tag-徒弟乙 { background: #fef7e0; color: #b06000; }
+        .tag-客人 { background: #feefec; color: #b71c1c; }
+        .tag-旁白 { background: #f1f3f4; color: #5f6368; }
+        .tag-default { background: #eee; color: #333; }
+
+        /* 動作指令樣式：純文字加色塊，無斜體 */
+        .action-box { color: #555; background: #f7f7f7; padding: 12px; border-radius: 6px; border-left: 5px solid #ccc; margin-bottom: 10px; font-size: 1.05em; line-height: 1.5; }
+        .action-prefix { font-weight: bold; color: #1a73e8; margin-right: 5px; }
+
+        /* 台詞文字：加大字體適應手機 */
+        .speech-text { font-size: 1.3em; line-height: 1.7; color: #202124; word-wrap: break-word; margin-bottom: 10px; }
+
+        /* 建議修改按鈕：手機大按鈕設計 */
+        .report-btn { 
+            align-self: flex-end; font-size: 15px; color: #1a73e8; border: 2px solid #1a73e8; 
+            background: white; border-radius: 8px; cursor: pointer; padding: 10px 18px; 
+            font-weight: bold; transition: 0.2s; -webkit-tap-highlight-color: transparent;
+        }
+        .report-btn:active { background: #e8f0fe; transform: scale(0.95); }
+
+        @media (max-width: 600px) {
+            .speech-text { font-size: 1.4em; } 
+            .container { padding: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📜 佛光沙龍劇本閱讀器</h1>
+        <div class="subtitle">（可用兩指縮放，點擊「💡 建議」可自動紀錄回饋）</div>
+<div class="scene-title">【場景 1：小理髮店】 1.1 等待客人上門</div>
+        <div class="line-box">
+            <div class="char-tag tag-旁白">旁白</div>
+            
+            <div class="speech-text">在一個小村莊，有一間，小小間的理髮店。老闆姓陳，大家都叫他「陳老闆」。這間店有一個特色，不是老闆剪得特別時髦，是老闆在剪頭髮的時候，他的嘴一直在念佛，從來沒有停過。</div>
+            <button class="report-btn" onclick="sendReport('旁白', '在一個小村莊，有一間，小小間的理髮店。老闆姓陳，大家都叫他「陳老闆」。這間店有一個特色，不是老闆剪得特別時髦，是老闆在剪頭髮的時候，他的嘴一直在念佛，從來沒有停過。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>在椅子旁走來走去，小聲念佛</div>
+            <div class="speech-text">南無阿彌陀佛、南無阿彌陀佛、南無阿彌陀佛。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '南無阿彌陀佛、南無阿彌陀佛、南無阿彌陀佛。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>拿掃把在一旁慢慢掃地，停下來看一眼師傅，接著轉向觀眾</div>
+            <div class="speech-text">（對觀眾小聲嘀咕）我們師傅真厲害，剪頭髮也念佛，吃飯也念佛，走路也在念佛……等一下不知道會不會把客人剪成阿彌陀佛頭？</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '（對觀眾小聲嘀咕）我們師傅真厲害，剪頭髮也念佛，吃飯也念佛，走路也在念佛……等一下不知道會不會把客人剪成阿彌陀佛頭？')">💡 建議修改</button>
+        </div><div class="scene-title">1.2 客人觀察到一邊剪一邊念佛</div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>從側台走進來，一邊走一邊整理自己的頭髮</div>
+            <div class="speech-text">師傅早！今天來修一下頭髮，要幫我剪得年輕一點喔！</div>
+            <button class="report-btn" onclick="sendReport('客人', '師傅早！今天來修一下頭髮，要幫我剪得年輕一點喔！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>招呼客人就座</div>
+            <div class="speech-text">好好好，請坐、請坐。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '好好好，請坐、請坐。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>把毛巾披在客人肩上，整理一下</div>
+            
+            <button class="report-btn" onclick="sendReport('陳老闆', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>一邊掃地、一邊湊近觀眾小聲八卦</div>
+            <div class="speech-text">（對觀眾小聲八卦）又一顆頭，要交給阿彌陀佛設計了……</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '（對觀眾小聲八卦）又一顆頭，要交給阿彌陀佛設計了……')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>站在客人後面，比出剪頭髮的動作</div>
+            <div class="speech-text">南無阿彌陀佛、南無阿彌陀佛、南無阿彌陀佛。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '南無阿彌陀佛、南無阿彌陀佛、南無阿彌陀佛。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>表情顯得有點擔心，忍不住側頭看後面</div>
+            <div class="speech-text">欸，老闆，你安內邊剪頭髮邊念佛，這樣不會剪錯喔？</div>
+            <button class="report-btn" onclick="sendReport('客人', '欸，老闆，你安內邊剪頭髮邊念佛，這樣不會剪錯喔？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>笑笑地回應，一邊將動作放慢</div>
+            <div class="speech-text">我邊剪頭髮，邊念佛，念佛就有佛光，有佛光的加持，不只不會剪錯，而且還會保平安。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '我邊剪頭髮，邊念佛，念佛就有佛光，有佛光的加持，不只不會剪錯，而且還會保平安。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>立刻湊過來，探頭插嘴</div>
+            <div class="speech-text">嘿啦嘿啦，我們這不是普通的理髮店，是「佛光加持」的「佛光沙龍」啦。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '嘿啦嘿啦，我們這不是普通的理髮店，是「佛光加持」的「佛光沙龍」啦。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>轉頭看一眼陳老闆又轉回來</div>
+            <div class="speech-text">是喔……安內，如果等一下剪醜了，我是要跟阿彌陀佛客訴喔……</div>
+            <button class="report-btn" onclick="sendReport('客人', '是喔……安內，如果等一下剪醜了，我是要跟阿彌陀佛客訴喔……')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>笑著重新專心剪髮，念佛聲漸漸順口</div>
+            <div class="speech-text">南無阿彌陀佛，南無阿彌陀佛，南無阿彌陀──佛！</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '南無阿彌陀佛，南無阿彌陀佛，南無阿彌陀──佛！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>從椅子「彈」出去好幾步，身體往前差點跌倒</div>
+            <div class="speech-text">哎呀！！老闆！你也不要給我「佛」那麼大聲！</div>
+            <button class="report-btn" onclick="sendReport('客人', '哎呀！！老闆！你也不要給我「佛」那麼大聲！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">這一聲「佛」下去，變成「佛跳牆」啦！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '這一聲「佛」下去，變成「佛跳牆」啦！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>摸摸頭，做出有點不好意思的動作</div>
+            <div class="speech-text">好好好，我會小聲一點。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '好好好，我會小聲一點。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>深呼吸緩一緩情緒，慢慢走回椅子就座</div>
+            
+            <button class="report-btn" onclick="sendReport('客人', '[無]')">💡 建議修改</button>
+        </div><div class="scene-title">1.3 客人滿意離場</div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>時間略過一小段，專心幫客人剪髮</div>
+            
+            <button class="report-btn" onclick="sendReport('陳老闆', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>拿起「鏡子」在客人背後左右擺動</div>
+            <div class="speech-text">來，你看看有滿意嗎？</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '來，你看看有滿意嗎？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>看向左前方再看向右前方，微笑點點頭</div>
+            <div class="speech-text">咦，還不錯耶！看起來真的比較年輕。</div>
+            <button class="report-btn" onclick="sendReport('客人', '咦，還不錯耶！看起來真的比較年輕。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>輕快走上前，站在客人旁邊笑著說好話</div>
+            <div class="speech-text">你這顆「佛祖頭」，看起來就很有福氣啦！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '你這顆「佛祖頭」，看起來就很有福氣啦！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>陳老闆拿掉毛巾後站起來整理衣服</div>
+            <div class="speech-text">好、好，那安內，以後我就固定來這裡，給阿彌陀佛跟你，一起幫我剪。</div>
+            <button class="report-btn" onclick="sendReport('客人', '好、好，那安內，以後我就固定來這裡，給阿彌陀佛跟你，一起幫我剪。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-客人">客人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>做出掏錢付錢動作，對陳老闆點頭致意後往側台下場，臨走前還回頭看髮型</div>
+            
+            <button class="report-btn" onclick="sendReport('客人', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>轉回原位繼續掃地</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟甲', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>整理東西後在椅子坐下，小聲念佛</div>
+            <div class="speech-text">南無阿彌陀佛（三聲）。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '南無阿彌陀佛（三聲）。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-旁白">旁白</div>
+            
+            <div class="speech-text">就這樣，念佛、剪頭髮、念佛、剪頭髮，日子就安內一天一天地過去了。附近的人都知道，村頭有一間小間的理髮店，有一位很會剪頭髮，而且念佛很大聲的陳老闆。</div>
+            <button class="report-btn" onclick="sendReport('旁白', '就這樣，念佛、剪頭髮、念佛、剪頭髮，日子就安內一天一天地過去了。附近的人都知道，村頭有一間小間的理髮店，有一位很會剪頭髮，而且念佛很大聲的陳老闆。')">💡 建議修改</button>
+        </div><div class="scene-title">【場景 2：清晨的豬叫聲】 2.1 清晨傳來豬叫聲</div>
+        <div class="line-box">
+            <div class="char-tag tag-旁白">旁白</div>
+            
+            <div class="speech-text">在理髮店不遠的地方，有一座屠宰場。每天清晨，常常都會傳來豬仔痛苦的叫聲。</div>
+            <button class="report-btn" onclick="sendReport('旁白', '在理髮店不遠的地方，有一座屠宰場。每天清晨，常常都會傳來豬仔痛苦的叫聲。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-default">音效</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>播放豬叫聲</div>
+            <div class="speech-text">哼──哼──哼──！</div>
+            <button class="report-btn" onclick="sendReport('音效', '哼──哼──哼──！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>停下掃地的動作，眉頭微皺</div>
+            <div class="speech-text">唉……又在殺豬了。每天早上聽到這種聲音，心裡都很難過。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '唉……又在殺豬了。每天早上聽到這種聲音，心裡都很難過。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>看向陳老闆</div>
+            <div class="speech-text">師傅，你每天清晨在這裡念佛，旁邊這樣殺豬……你還念得下去喔？</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '師傅，你每天清晨在這裡念佛，旁邊這樣殺豬……你還念得下去喔？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>停頓一下，慢慢站起來</div>
+            <div class="speech-text">我聽到牠們在叫，當然也很捨不得。可是我也沒有辦法，我能做的，只有念佛，迴向給牠們。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '我聽到牠們在叫，當然也很捨不得。可是我也沒有辦法，我能做的，只有念佛，迴向給牠們。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>望向天空，神情沉靜，雙手緩緩合掌</div>
+            <div class="speech-text">願這些受苦的豬仔，都能離開痛苦，蒙佛救度，往生西方。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '願這些受苦的豬仔，都能離開痛苦，蒙佛救度，往生西方。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>小聲念佛三聲</div>
+            <div class="speech-text">南無阿彌陀佛……</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '南無阿彌陀佛……')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>站在一旁看著師傅，眼神充滿敬意</div>
+            <div class="speech-text">原來你每天清晨念佛，不只是為了自己，也是為了眾生喔……</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '原來你每天清晨念佛，不只是為了自己，也是為了眾生喔……')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>重新坐回原位</div>
+            
+            <button class="report-btn" onclick="sendReport('陳老闆', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-旁白">旁白</div>
+            
+            <div class="speech-text">陳老闆就這樣，每天發願、每天念佛、每天迴向。好像沒有甚麼不同的，其實，在他看不到的地方，已經產生了很大的轉變。</div>
+            <button class="report-btn" onclick="sendReport('旁白', '陳老闆就這樣，每天發願、每天念佛、每天迴向。好像沒有甚麼不同的，其實，在他看不到的地方，已經產生了很大的轉變。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>從側台快步跑進來，一看到師傅就用力揮手</div>
+            <div class="speech-text">（發出「嗯、嗯」的聲音，兩手如蝴蝶般亂比，整個人非常興奮）</div>
+            <button class="report-btn" onclick="sendReport('徒弟乙', '（發出「嗯、嗯」的聲音，兩手如蝴蝶般亂比，整個人非常興奮）')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>趕緊走過來，把掃把靠在一旁</div>
+            <div class="speech-text">欸欸欸，卡慢ㄟ、卡慢ㄟ，你這樣一直飛，我一句話也看不懂啦！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '欸欸欸，卡慢ㄟ、卡慢ㄟ，你這樣一直飛，我一句話也看不懂啦！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>站起來，走近徒弟乙</div>
+            <div class="speech-text">沒關係，你要說什麼，你慢慢比就好。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '沒關係，你要說什麼，你慢慢比就好。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-旁白">旁白</div>
+            
+            <div class="speech-text">這個年輕人，他跟別人有一點不一樣。雖然他沒法度說話，但是他的眼睛，可以看到更多。別人只可以看到眼前的桌子、椅子，但是他能夠看到別人看不見的東西。</div>
+            <button class="report-btn" onclick="sendReport('旁白', '這個年輕人，他跟別人有一點不一樣。雖然他沒法度說話，但是他的眼睛，可以看到更多。別人只可以看到眼前的桌子、椅子，但是他能夠看到別人看不見的東西。')">💡 建議修改</button>
+        </div><div class="scene-title">3.1 第一輪：猜出「豬」</div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>1. 雙手拉著自己的耳朵</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">「耳朵」，他是說「耳朵」啦！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '「耳朵」，他是說「耳朵」啦！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>點頭表示認同</div>
+            <div class="speech-text">對，是耳朵。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '對，是耳朵。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>連忙擺手搖頭，表示不是</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>2. 在耳朵旁邊搧動，表現出「會動」</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">會動喔……那安內是「蝴蝶」！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '會動喔……那安內是「蝴蝶」！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>雙手亂搖，猛搖頭表示不是</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            
+            <div class="speech-text">哇！這是「老鷹」啦！</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '哇！這是「老鷹」啦！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>氣得跺腳，再次擺手搖頭</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>4. 表現笨重感，身體左右晃，腳步沉重</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            
+            <div class="speech-text">沒錯，是「大象」！</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '沒錯，是「大象」！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>5. 推自己的鼻子，做成朝天鼻樣</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>恍然大悟，拍手</div>
+            <div class="speech-text">喔！是「豬」啦！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '喔！是「豬」啦！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            
+            <div class="speech-text">對！對！對！是「豬」！</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '對！對！對！是「豬」！')">💡 建議修改</button>
+        </div><div class="scene-title">3.2 第二輪：猜出「蓮花」</div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>1. 將雙手併攏在胸前，像一個小碗</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">這是「碗」喔？</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '這是「碗」喔？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            
+            <div class="speech-text">比碗大……安內就是「盆子」！</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '比碗大……安內就是「盆子」！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>3. 做出「開花」的動作</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">花？你是說「開花」喔？</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '花？你是說「開花」喔？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>4. 雙手合十表演開花：合十後慢慢張開</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">不是啦！他是說「蓮花」啦！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '不是啦！他是說「蓮花」啦！')">💡 建議修改</button>
+        </div><div class="scene-title">3.3 第三輪：搞笑拼湊</div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>重複地指向「天空」的方向</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>「啊」地一聲，像是突然想到什麼</div>
+            <div class="speech-text">我知道了！</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '我知道了！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-default">徒弟甲 & 陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>兩個人面對面，大聲說出答案</div>
+            <div class="speech-text">是「豬八戒」！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲 & 陳老闆', '是「豬八戒」！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>整個人軟下去，「癱坐」在地上</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-旁白">旁白</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>忍不住插嘴</div>
+            <div class="speech-text">他是說豬仔坐蓮花，往生西方了！</div>
+            <button class="report-btn" onclick="sendReport('旁白', '他是說豬仔坐蓮花，往生西方了！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>立刻從地上彈起來，跑到旁白面前，用力比「對、對」的手勢，整個人用力點頭。再快步跑回原位站好。</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>恍然大悟，拍一下自己的額頭，轉向陳老闆</div>
+            <div class="speech-text">豬仔坐蓮花，往西方去了！</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '豬仔坐蓮花，往西方去了！')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>又驚又喜，整個人愣在原地</div>
+            <div class="speech-text">什麼？！豬仔坐蓮花，去西方？</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '什麼？！豬仔坐蓮花，去西方？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>低頭，若有所思</div>
+            <div class="speech-text">那……是誰把牠們送去的？</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '那……是誰把牠們送去的？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>比向「陳老闆」，然後做出合掌念佛的樣子</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">他說是你念佛，把那些豬超度去了。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '他說是你念佛，把那些豬超度去了。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>愣住，半信半疑</div>
+            <div class="speech-text">我在這邊念佛，真的有辦法超度那些豬仔喔！？</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '我在這邊念佛，真的有辦法超度那些豬仔喔！？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">師傅，你人在理髮店念佛，結果「客人」跑到極樂世界，這生意做到西方去了耶。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '師傅，你人在理髮店念佛，結果「客人」跑到極樂世界，這生意做到西方去了耶。')">💡 建議修改</button>
+        </div><div class="scene-title">3.4 佛號的光，像龍一樣飛出去</div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>神情莊重，若有所思</div>
+            <div class="speech-text">可是……我在這裡念佛，豬在那邊被殺，牠們又聽不到，怎麼會被我超度呢？</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '可是……我在這裡念佛，豬在那邊被殺，牠們又聽不到，怎麼會被我超度呢？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>雙手合掌，做出「念佛」的樣子，在空中畫出一條彎彎曲曲的線，像龍在游，最後指向天空</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">他說，你念佛的時候，就有很強的光，像龍一樣，從這裡飛到屠宰場那邊。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '他說，你念佛的時候，就有很強的光，像龍一樣，從這裡飛到屠宰場那邊。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>再做一次動作，這次扭動越來越大，像在跳舞</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">欸欸欸，你再扭下去，就變成「山地舞」了啦。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '欸欸欸，你再扭下去，就變成「山地舞」了啦。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>停下來，吐一口氣，翻個白眼</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            
+            <div class="speech-text">所以說，不是豬仔聽到我念佛，是阿彌陀佛的名號，變成光明，跑去豬那裡，把牠們接走？</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '所以說，不是豬仔聽到我念佛，是阿彌陀佛的名號，變成光明，跑去豬那裡，把牠們接走？')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>用力點頭，雙手比讚</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div><div class="scene-title">3.5 八個方向，八條金龍</div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            
+            <div class="speech-text">那安內，我們再試看看。我現在在心中默念，你再看看，有什麼不一樣。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '那安內，我們再試看看。我現在在心中默念，你再看看，有什麼不一樣。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>面向觀眾，雙手合掌，閉上眼睛，安靜站著</div>
+            
+            <button class="report-btn" onclick="sendReport('陳老闆', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>睜大眼睛，繞著陳老闆走一圈，亂比前、後、左、右等八個方向</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">他說，現在不是只有一道光，是八道光明，親像八隻金龍，往八個方向飛去。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '他說，現在不是只有一道光，是八道光明，親像八隻金龍，往八個方向飛去。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>睜開眼睛，表情震撼</div>
+            <div class="speech-text">哎呀，原來這句佛號，竟然有這麼大的力量……我在這裡念佛，名號就可以化成光明，去幫助眾生。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '哎呀，原來這句佛號，竟然有這麼大的力量……我在這裡念佛，名號就可以化成光明，去幫助眾生。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>面向觀眾，仰頭向空</div>
+            <div class="speech-text">那安內，我以後，也要為一切眾生念佛。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '那安內，我以後，也要為一切眾生念佛。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-陳老闆">陳老闆</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>慢慢、大動作合掌，緩聲說話</div>
+            <div class="speech-text">希望所有的眾生，都可以靠這句「南無阿彌陀佛」，離苦得樂，往生西方。</div>
+            <button class="report-btn" onclick="sendReport('陳老闆', '希望所有的眾生，都可以靠這句「南無阿彌陀佛」，離苦得樂，往生西方。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟甲">徒弟甲</div>
+            
+            <div class="speech-text">我們這間理髮店，邊幫人剪頭髮，邊度眾生去西方，這樣才對得起「佛光沙龍」這塊招牌啦。</div>
+            <button class="report-btn" onclick="sendReport('徒弟甲', '我們這間理髮店，邊幫人剪頭髮，邊度眾生去西方，這樣才對得起「佛光沙龍」這塊招牌啦。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-徒弟乙">徒弟乙</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>大力點頭，雙手比讚，露出笑容</div>
+            
+            <button class="report-btn" onclick="sendReport('徒弟乙', '[無]')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-旁白">旁白</div>
+            
+            <div class="speech-text">只要有人在這裡念佛，阿彌陀佛的光明就會在這裡照耀，一直保護著我們，一直保護著我們……，一直到我們往生極樂世界。</div>
+            <button class="report-btn" onclick="sendReport('旁白', '只要有人在這裡念佛，阿彌陀佛的光明就會在這裡照耀，一直保護著我們，一直保護著我們……，一直到我們往生極樂世界。')">💡 建議修改</button>
+        </div>
+        <div class="line-box">
+            <div class="char-tag tag-default">三人</div>
+            <div class="action-box"><span class="action-prefix">動作:</span>一起做出「光射八方」的動作，往側台退場</div>
+            
+            <button class="report-btn" onclick="sendReport('三人', '[無]')">💡 建議修改</button>
+        </div>
+    </div>
+
+    <script>
+        function sendReport(character, originalLine) {
+            const suggestion = prompt(`您對【${character}】的台詞有什麼建議？\n\n原內容："${originalLine}"`);
+            
+            if (suggestion) {
+                // --- Google 表單設定區 (已根據您的連結填寫) ---
+                const formID = "1FAIpQLScRusS4PvZ2xCfF3ckxh1FIbhTaC5Cb_cvDZjUNg541AqJwVw";
+                const entry_char = "entry.2070395466"; // 問題1: 角色
+                const entry_line = "entry.788511661";  // 問題2: 原台詞
+                const entry_sug  = "entry.1033546112"; // 問題3: 建議內容
+                // -------------------------------------------
+
+                const baseURL = `https://docs.google.com/forms/d/e/${formID}/formResponse`;
+                const finalURL = `${baseURL}?` + 
+                                 `${entry_char}=${encodeURIComponent(character)}&` + 
+                                 `${entry_line}=${encodeURIComponent(originalLine)}&` + 
+                                 `${entry_sug}=${encodeURIComponent(suggestion)}&submit=Submit`;
+
+                // 彈出確認視窗，點擊後會開啟新分頁提交
+                const confirmSubmit = confirm("確認要提交此修改建議嗎？\n(將自動填寫至 Google 表單)");
+                if (confirmSubmit) {
+                    window.open(finalURL, '_blank');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
